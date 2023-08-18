@@ -13,7 +13,7 @@ const defaultOptions: Options = {
   prefix: 'i-icon',
   iconsDir: 'src/icons',
   excludes: [],
-  outputFile: 'src/helper/unocss-icons.ts',
+  outputFile: 'src/helper/unocss-auto-svg.ts',
 }
 
 export default function (options: Options = {}) {
