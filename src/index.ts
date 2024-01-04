@@ -7,6 +7,7 @@ type Options = Partial<{
   iconsDir: string
   excludes: string[]
   outputFile: string
+  isDev: boolean;
 }>
 
 const defaultOptions: Options = {
@@ -14,12 +15,13 @@ const defaultOptions: Options = {
   iconsDir: 'src/icons',
   excludes: [],
   outputFile: 'src/helper/unocss-auto-svg.ts',
+  isDev: false,
 }
 
 export default function (options: Options = {}) {
   options = { ...defaultOptions, ...options }
 
-  const { prefix, iconsDir, excludes, outputFile } = options as Required<Options>
+  const { prefix, iconsDir, excludes, outputFile, isDev } = options as Required<Options>
   const iconPath = resolve(process.cwd(), iconsDir)
   const outputDir = outputFile.replace(/(\/[^/]*).ts/, '')
   fs.readdir(outputDir).catch(() => fs.mkdir(outputDir))
@@ -49,9 +51,11 @@ ${iconNames.reduce((str, iconName, index, arr) => {
   }
 
   generateConfigFiles()
-  const watcher = chokidar.watch(iconPath)
-  watcher.on('add', () => generateConfigFiles())
-  watcher.on('unlink', () => generateConfigFiles())
+  if (process.env.NODE_ENV === 'development' || isDev) {
+    const watcher = chokidar.watch(iconPath)
+    watcher.on('add', () => generateConfigFiles())
+    watcher.on('unlink', () => generateConfigFiles())
+  }
 
   return {
     name: 'unocss-auto-svg',
