@@ -1,12 +1,12 @@
 {
-  "name": "unocss-auto-svg",
-  "version": "0.0.5",
+  "name": "@wits/unocss-auto-svg",
+  "version": "0.0.7",
   "description": "Auto svg icon for use Unocss.",
-  "author": "jinghao.sun",
+  "author": "sunjinghao",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Allen-1998/pinia-auto-refs.git"
+    "url": ""
   },
   "main": "dist/index.js",
   "module": "dist/index.mjs",
