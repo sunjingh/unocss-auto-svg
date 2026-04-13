@@ -24,6 +24,11 @@ async function ensureDir(dir: string) {
   await fs.mkdir(dir, { recursive: true })
 }
 
+/** 判断是否为 glob 模式 */
+function isGlobPattern(str: string): boolean {
+  return /[*?{}[\]]/.test(str)
+}
+
 /** 收集目录下的图标 */
 async function collectIcons(
   dirOrGlob: string,
@@ -31,25 +36,36 @@ async function collectIcons(
   excludes: string[],
 ): Promise<string[]> {
   const cwd = process.cwd()
-  const absDir = resolve(cwd, dirOrGlob)
-  const svgFiles = await fg.glob('**/*.svg', {
-    cwd: absDir,
-    onlyFiles: true,
-    absolute: true,
-  })
+  let svgFiles: string[]
 
-  const componentMatch = dirOrGlob.match(/components\/([^/]+)\/icons$/)
+  if (isGlobPattern(dirOrGlob)) {
+    svgFiles = await fg.glob(`${dirOrGlob}/**/*.svg`, {
+      cwd,
+      onlyFiles: true,
+      absolute: true,
+    })
+  } else {
+    const absDir = resolve(cwd, dirOrGlob)
+    svgFiles = await fg.glob('**/*.svg', {
+      cwd: absDir,
+      onlyFiles: true,
+      absolute: true,
+    })
+  }
 
   return svgFiles
-    .map((f) => basename(f, '.svg'))
-    .filter((name) => !excludes.includes(name))
-    .map((name) => {
+    .map((f) => {
+      const name = basename(f, '.svg')
+      if (excludes.includes(name)) return null
+
+      const componentMatch = f.match(/components[\/\\](.+?)[\/\\]icons[\/\\]/)
       if (componentMatch) {
-        const componentName = componentMatch[1].replace(/-/g, '_')
-        return `${prefix}-${componentName}-${name}`
+        const parts = componentMatch[1].split(/[\/\\]/).map((p) => p.replace(/-/g, '_'))
+        return `${prefix}-${parts.join('_')}-${name}`
       }
       return `${prefix}-${name}`
     })
+    .filter((item): item is string => item !== null)
 }
 
 /** 生成自动引入配置文件 */
@@ -92,7 +108,12 @@ export default function (options: Options | Options[] = {}) {
     // 开发环境监听变化
     if (process.env.NODE_ENV === 'development' || opts.isDev) {
       const dirs = Array.isArray(opts.iconsDir) ? opts.iconsDir : [opts.iconsDir]
-      const watchPaths = dirs.map((dir) => resolve(process.cwd(), dir))
+      const watchPaths = dirs.map((dir) => {
+        if (isGlobPattern(dir)) {
+          return resolve(process.cwd(), dir)
+        }
+        return resolve(process.cwd(), dir)
+      })
       const watcher = chokidar.watch(watchPaths, { ignoreInitial: true })
       watcher.on('add', () => generateConfigFiles(opts))
       watcher.on('unlink', () => generateConfigFiles(opts))
