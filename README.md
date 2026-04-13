@@ -74,3 +74,10 @@ UnocssAutoSvg({
   iconsDir: ['src/icons', 'src/components/*/icons'],
 })
 ```
+
+## Icon Naming Rule
+
+- `src/icons/arrow.svg` → `i-icon-arrow`
+- `src/components/search-panel/icons/arrow.svg` → `i-icon-search_panel-arrow`
+
+组件目录下的图标会自动添加组件名前缀，并将中划线 `-` 替换为下划线 `_`。

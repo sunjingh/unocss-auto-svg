@@ -31,15 +31,25 @@ async function collectIcons(
   excludes: string[],
 ): Promise<string[]> {
   const cwd = process.cwd()
+  const absDir = resolve(cwd, dirOrGlob)
   const svgFiles = await fg.glob('**/*.svg', {
-    cwd: resolve(cwd, dirOrGlob),
+    cwd: absDir,
     onlyFiles: true,
     absolute: true,
   })
+
+  const componentMatch = dirOrGlob.match(/components\/([^/]+)\/icons$/)
+
   return svgFiles
     .map((f) => basename(f, '.svg'))
     .filter((name) => !excludes.includes(name))
-    .map((name) => `${prefix}-${name}`)
+    .map((name) => {
+      if (componentMatch) {
+        const componentName = componentMatch[1].replace(/-/g, '_')
+        return `${prefix}-${componentName}-${name}`
+      }
+      return `${prefix}-${name}`
+    })
 }
 
 /** 生成自动引入配置文件 */
