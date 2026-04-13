@@ -31,7 +31,8 @@
     "v": "npm version patch && git push && git push origin --tags"
   },
   "dependencies": {
-    "chokidar": "3.5.3"
+    "chokidar": "3.5.3",
+    "fast-glob": "^3.3.3"
   },
   "devDependencies": {
     "@babel/types": "7.17.0",

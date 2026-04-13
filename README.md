@@ -42,9 +42,10 @@ export default defineConfig({
 ```ts
 type Options = Partial<{
   prefix: string // 前缀
-  iconsDir: string
+  iconsDir: string | string[] // 图标目录，支持数组或 glob 模式
   excludes: string[]
   outputFile: string
+  isDev: boolean
 }>
 
 const defaultOptions = {
@@ -52,5 +53,24 @@ const defaultOptions = {
   iconsDir: 'src/icons',
   excludes: [],
   outputFile: 'src/helper/unocss-auto-svg.ts',
+  isDev: false,
 }
+```
+
+## Usage Examples
+
+**单目录：**
+
+```ts
+UnocssAutoSvg({
+  iconsDir: 'src/icons',
+})
+```
+
+**多目录（支持 glob 模式）：**
+
+```ts
+UnocssAutoSvg({
+  iconsDir: ['src/icons', 'src/components/*/icons'],
+})
 ```
